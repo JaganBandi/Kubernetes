@@ -1,0 +1,292 @@
+KUBERNETES COMMANDS :
+===================
+
+A. Cluster health and basic information
+
+1. Check the client and server version
+
+  Command : kubectl version
+
+Shows the client version and kubernetes API version
+
+2. Check Cluster information
+
+Command : kubectl cluster-info
+
+Shows the Kubernetes control plan endpoints and other cluster services
+
+3. Check the nodes
+
+Command : kubectl get nodes
+
+4. Detailed node information 
+
+Command : kubectl get nodes -o wide
+
+5. inspect one node 
+
+Command : kubectl describe node <node-name>
+
+Example : kubectl describe node k8s-node1
+
+6. Check the System pods
+
+Command : kubectl get pods -n kube-system -o wide
+
+7. Check All namaspaces
+
+Command : kubectl get namespaces
+
+8. Check the resources across all namespaces
+
+Command : kubectl get pods -A
+
+9. Create namespaces
+
+Command : kubectl create namespace <name>
+
+Example : kubectl create namespace kube-lab
+
+10. Set the current namespace
+
+Command : kubectl config set-context --current --namespace=kube-lab
+
+Makes k8s-lab the default namespace for subsequent kubectl commands using the current context.
+
+11. Check the current namespace 
+
+Command : kubectl config view --minify
+
+
+12. Get the pods from specific namespaces
+
+Command : kubectl get pods -n <namespace>
+
+Example : kubectl get pods -n default
+
+13. Create pod
+
+Command : kubectl run <pod-name> --image=<image-name>
+
+Example : kubectl run nginx-pod --image=nginx
+
+14. Create pod using spcific namspace
+
+Command : kubectl run pod <pod-name> --image=<name> -n <namespace>
+
+Example : kubectl run pod nginx-pod --image=nginx:latest -n kube-lab
+
+
+15. Check  the pods
+
+Command : kubectl get pods
+
+Detailed information about pod 
+
+Command : kubectl get pods -o wide
+
+16. Check the pod with specific namespace
+
+Command : kubectl pod <pod-name> -n <namespace> -o wide
+
+Example : kubectl pod nginx-pod -n kube-lab -o wide
+
+17. Inspect the pod with specific name space
+
+Command : kubectl describe pod <pod-name> -n <namespace>
+
+Example : kubectl describe pod nginx-pod -n kube-lab 
+
+18. Get Detailed information about pod
+
+Command : kubectl describe pod <pod-name>
+
+Example : kubectl get pod nginx-pod
+
+19. Check the pod logs
+
+Command : kubectl logs <pod-name>
+
+Example : kubectl logs nginx-pod
+
+20. Check logs with namespace
+
+Command : kubectl logs nginx-pod -n kube-lab
+
+21. Follow logs continuesly
+
+Command : kubectl logs -f <pod-name> -n kube-lab
+
+Example : kubectl logs -f nginx-pod -n kube-lab
+
+Exit : Ctrl + c
+
+22.Enter inside the container
+
+Command : kubectl exec -it <pod-name> -- /bin/bash
+
+Example : kubectl exec -it nginx-pod -- /bin/bash
+
+23.Enter inside the container with namespace
+
+Command : kubectl exec -it <pod-name> -n <name-space> -- /bin/bash
+
+Example : kubectl exec -it nginx-pod -n kube-lab -- /bin/bash
+
+24.Check the specific pod ip
+
+Command : kubectl get pod <pod-name> -o wide
+
+Example : kubectl get pod nginx-pod -o wide
+
+25. Test the application inside the pod
+
+Command : kubectl exec <pod-name> -- <image-name> -v
+
+Example : kubectl exec nginx-pod -- nginx -v
+
+26. Delete the pod
+
+Command : kubectl delete pod <pod-name>
+
+Example : kubectl delete pod nginx-pod
+
+27. Delete pod inside the namespaces
+
+Command : kubectl delete pod <pod-name> -n <name-space>
+
+Example : kubectl delete pod nginx-pod -n kube-lab
+
+Flow :
+
+You
+ ↓
+kubectl
+ ↓
+Kubernetes API Server
+ ↓
+Scheduler selects a node
+ ↓
+kubelet on that node
+ ↓
+containerd pulls nginx image
+ ↓
+Container starts
+ ↓
+Calico gives Pod an IP
+ ↓
+Pod becomes Running
+
+B.MANIFEST FILE :
+
+Pod
+│
+├── apiVersion
+│
+├── kind
+│
+├── metadata
+│   ├── name
+│   └── labels
+│       └── app
+│
+└── spec
+    └── containers
+        └── container
+            ├── name
+            ├── image
+            └── ports
+                └── containerPort
+
+
+Intendation :
+
+spec:                         0 spaces
+  containers:                 2 spaces
+    - name: nginx-container   4 spaces
+      image: nginx:latest     6 spaces
+      ports:                  6 spaces
+        - containerPort: 80   8 spaces
+
+
+28. Create yaml file
+
+Command : use both vim or vi
+
+Example : vim apache-pod.yaml
+
+29. Check locally yaml file create file
+
+Command : kubectl apply -f <file-name> --dry-run=client
+
+Example : kubectl apply -f apache-pod.yaml --dry-run=client
+
+30. Check the yaml file with kubernetes API server without actually create pod
+
+Command : kubectl apply -f <file-name> --dry-run=server
+
+Example : kubectl apply -f apache-pod.yaml --dry-run=server
+
+31. Run yaml file 
+
+Command : kubectl apply -f <file-name>
+
+Example : kubectl apply -f apache-pod.yaml
+
+32. Delete the pod with yaml file
+
+Command : kubectl delete -f <file-name>
+
+Example : kubectl delete -f apache-pod.yaml
+
+33. Check the labels
+
+Command : kubectl get pods -n k8s-lab --show-labels
+
+34. Select pod by label
+
+Command : kubectl get pod -n k8s-lab -l app=nginx
+
+
+C. Create a Deployment 
+
+
+35. Create Deployment
+
+Command : kubectl create deployment <deployment-name> --image=<image-name> --replicas=<number> -n <namespace>
+
+Example : kubectl create deployment nginx-app --image=nginx:1.27 --replicas=3 -n k8s-lab
+
+Architecture :
+
+Deployment
+    ↓
+ReplicaSet
+    ↓
+Pod 1   Pod 2   Pod 3
+
+36. Check the deployment
+
+Command : kubectl get deployment -n <namespace>
+
+Example : kubectl get deployment -n k8s-lab
+
+37. Check Replica sets 
+
+Command : kubectl get replicasets
+
+38. Describe the Deployment
+
+Command : kubectl describe deployment <name> -n <namespace>
+
+Example : kubectl describe deployment nginx-app -n k8s-lab
+
+## Command : crictl 
+this command is communicates with the containerr runtime 
+What we want to check: Whether the API server container is Running, Exited, or repeatedly restarting. A healthy result should show a running kube-apiserver container.
+Example :   
+[crictl ps -a | grep kube-apiserver]
+
+
+
+
