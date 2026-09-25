@@ -281,6 +281,591 @@ Command : kubectl describe deployment <name> -n <namespace>
 
 Example : kubectl describe deployment nginx-app -n k8s-lab
 
+39. Delete the Deployment 
+
+Command : kubectl delete deployment <app-name>
+
+Example : kubectl delete deplyment nginx-app
+
+### Scalling :
+
+40. Increate replicasets 
+
+Command : kubectl scale deployment <name> --replicas=<numbe> -n <namespace>
+
+Example : kubectl scale deployment nginx-app --replicasets=5 -n k8s-lab
+
+41. Decrease the replicaset 
+
+Command : kubectl scale deployement <name> --replicas=<decrease-number> -n namespace
+
+Example : kubectl scale deployement apache-app --replicas=2 -n k8s-lab
+
+### Rolling Update :
+
+
+42. Check the current Image version
+
+Command : kubectl describe deployment <deployment-name> -n <name-space> | grep -i image
+
+Example : kubectl describe deployement apache-app -n k8s-lab | grep -i image
+
+43. Rolling version :
+
+ Syntax : kubctl set image deployment/<deployment-name> <container-name>=<new-image>:<tag> -n <namespace>
+
+   Example : kubectl set image deployment/apache-app httpd=httpd:2.4 -n k8s-lab
+
+44. Update Status 
+
+this tells us whether Kubernetes finished replacing the old Pods with new Pods successfully.
+
+Synatx : kubectl rollout status deployment/<deployment-name> -n <name-space>
+
+Example: kubectl rollout status deployment/apache-app -n k8s-lab
+
+
+45. Rollout History 
+
+Synatax : kubectl rollout history deployement/<deplyment-name> -n <name-space>
+
+Exaample : kubectl rollout history deployment/apache-app -n k8s-lab
+
+46. Check the details of a specific rollout revision
+
+Synatax : kubectl rollout history deployment/<deployement-app> --revision=<revision-number> -n <name-space>
+
+Example : kubectl rollout history deployment/apache-app --revision=2 -n k8s-lab
+
+## Rollback :
+
+47. rollback the version
+
+Syntax : kubectl rollout undo deployment <deployment-name> --to-revision=<revision-number> -n <namespace>
+
+Example : kubectl rollout undo deployment web-app --to-revision=3 -n k8s-lab
+
+## Namespaces, Labels and Selectors
+
+1.Namespaces : A Namespace is a logical separation inside a Kubernetes cluster. It helps organize resources for different teams, projects, or environments.
+
+each namespace can contain its own Pods, Deploments , Services, and other resources
+
+48. Syntax : kubectl create namespace <namespace-name>
+
+Example : kubectl create namespace dev
+
+
+49. List of namespaces 
+
+Command : kubectl get namespaces
+
+50. View pods with Specifice namespace
+
+Syntax : kubectl get pods -n <namespace>
+
+Example : kubectl get pods -m dev
+
+Supppouse we want to get pods without using the namespaces after creating the pods inside namespace ,use context
+
+Contexts : A Kubernetes context is a configuration that combines a cluster, user credentials, and an optional default namespace for kubectl commands.
+
+51. To see the current context
+
+ Command : kubectl config current-context
+
+53. To See the All context 
+
+ Command : kubectl config get-contexts
+
+54. Set the context 
+
+Syntax : kubectl config set-context --current --namespace=<namespace>
+
+Exaample : kubectl config set-context --current --namespace=practice
+
+here practice is namespace , i set this namespace as a default
+
+then : we can run this command without using namespace
+
+    "kubectl get pods"
+
+55. unset the set context
+
+   Command : kubectl config unset contexts.$(kubectl config current-context).namespace
+
+56. Delete the namespace
+
+ Synatax : kubectl delete namespace <namespace>
+
+ Command : kubectl delete namespace practice
+
+ if namespace is delete , deleting the resources inside it
+
+ ### Labels 
+
+ A Label in Kubernetes is a key-value pair attached to a resource such as a Pod, Deployment, or Service. Labels help you identify, group, and organize resources.
+
+ Example : app=nginx
+
+ app = Key
+
+ nginx = values
+
+ 57.Syntax : kubectl label <resorce-type> <resource-name> <key>=<value> -n <namespace>
+
+   Example : kubectl run label-pod --image=nginx:1.27 -n dev-lab
+
+58. To view the labels
+  
+   Syntax :  kubectl get pods -n <namespace> --show-labels
+
+   Example : kubectl get pods -n dev-lab --show-labels
+
+59.  Add new label to the existing pod {Envronment label}
+
+    Syntax : kubectl label <resource-type> <resource-name> <key>=<value> -n <namespace>
+
+    Exaample : kubect label pod label-pod env=dev -n dev-lab
+
+    for deployment :
+
+    kubectl label deployment web-app env=dev -n dev-lab`  
+
+
+    run=label-pod  → identifies how the Pod was created
+    env=dev  → says this Pod belongs to the development environment
+
+60. Change the Existing label value
+
+  Syntax : kubectl label <resource-type> <resource-name> <key>=<value> --overwrite -n <namespace>
+
+  Example : kubectl label pod label-pod env-test --overwrite -n dev-lab
+
+
+env is commonly used as a label key to identify the environment of a Kubernetes resource, such as development, testing, or production.
+
+
+61. unlabeled the label
+
+ Syntax : kubectl label <resource-type> <resource-name> <key>-  -n <namespace>
+
+ Example : kubectl label pod nginx-app env- -n dev-lab
+
+
+### Selectors : 
+
+A Selectors is used to find or filter resources based on labels
+
+
+Synatax : kubectl get pods -l <key>=<value> -n <namespace>
+
+Example : kubectl get pods -l run=nginx-app -n dev-lab
+
+
+-l : use label selector
+
+run=nginx-app 
+
+select pods with this label
+
+-n Check inside this namespace
+
+### Selectors using multiple labels
+
+Syntax : kubectl get pods -l 'key1=value1,key2=value2' -n <namespace>
+
+Example : kubectl get pods -l 'run=nginx-app, env=dev' -n dev-lab
+
+
+##Annotations : Annotations are key-value pieces of metadata attached to Kubernetes objects such as Pods, Deployments, Services, and Nodes.
+
+Syntax : kubectl annotate <resorce-type> <resorce-name> <key>=<name> -n <namespace>
+
+Example : kubectk annote pod nginx-app description="Nginx application" -n dev-lab
+
+Add Multiple Annotations :
+-------------------------
+Syntax : kubectl annotate <resource> <name> key1=value1 key2=value2 -n namespace
+
+Example : 
+kubectl annote pod nginx-app description="Nginx-application" owner="DevOps-Team" -n dev-lab 
+ 
+Update an Annotation : 
+--------------------
+
+Syntax : kubectl annotate <resource> <name> <key>=<value> --overwrite -n namespace
+
+Example : kubectl annotate pod nginx-app description="Nginx Development Application"  --overwrite -n dev-lab
+
+Delete Annotation :
+
+Syntax : kubectl annotate <resource> <name> <key> -n <namespace>
+
+Example : kubectl annotate pod nginx-app owner- -n dev-lab 
+
+
+
+### Service
+
+A Kubernetes Service is an object that provides stable network endpoints to access a group of pods
+
+1. Stable Ip address : If pod changes ips ,service provides a stable virtual ip
+
+2. Stable DNS name : Kubernets creates DNS records for service, Application can use the service name
+
+3. Traffic forwarding : Service forwards the traffic to matching pods
+
+4. Load Distribution : When Multiple pods behind the service , Traffic can be distributed among them
+
+5. Pod Discovery :  service use labels and selectors to identify which pods should recieve traffic
+
+62. Syntax : kubectl expose deployment <depolyment-name> --type=<service-type> --port=<service-port> --target-port=<container-port> -n <namespace>
+
+Example : kubectl expose deployment  web-app --name=web-app-clusterip --type=Cluster-IP --port=80 --target-port=80 -n dev-lab
+
+ClusterIP is used to expose an application internally within the Kubernetes cluster. It provides a stable IP and DNS name and routes traffic to the Pods selected by the Service
+
+63. See the actual Servuce ip address
+
+ Command : kubectl get svc -A
+
+64. See the service in the namespace 
+
+ Syntax : kubectl get service -n <namespace>
+
+ Command : kubectl get service -n dev-lab
+
+ 65. Inspect the which pods to sends the traffic to 
+
+  Syntax: kubectl describe service <deployment-name> -n dev-lab
+
+  Example : kubectl describe service web-app -n dev-lab
+
+ 66. See the end points directly
+
+  Command : kubectl get endpoints <deployment-name> -n <namespace>
+
+  Exmple  : kubectl get endpoints web-app -n dev-lab
+
+  Endpoints represent the network addresses of the Pods that are selected by a Service. They tell the Service where to forward incoming traffic.
+
+ ## NodePort  : NodePort is a Kubernetes Service type that exposes a Service externally by opening a specific port on every Kubernetes Node. External clients can access the application using the Node IP and NodePort. It is commonly used for testing, development, and environments where a LoadBalancer is not available.  port = 3000 --> 32767
+
+ Syntax : kubectl expose deployment <deployment> --type=NodePort --port=<service-port> --type-port=<container-port> -n <namespace>
+
+ Example : kubectl expose deployment web-app -name web-app-nodeport --type=NodePort --port=80 --target-port=80 -n dev-lab
+
+ Check the nodeport 
+
+ kubectl get svc -n dev-lab 
+
+
+ Verify the complete Network connection
+
+ Command : kubectl describe svc web-app-nodeport -n dev-lab
+
+
+
+ ### ConfigMap:
+
+ A ConfigMap is a Kubernetes object used to store non-sensitive configuration data as key-value pairs. It allows us to separate application configuration from the container image and inject the configuration into Pods.
+
+ --> ConfigMap is an independent Kubernetes resource. A Pod does not create a ConfigMap. A Pod consumes or references a ConfigMap.
+
+ Basic Configmap Synatx :
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: app-config
+  namespace: kube-lab
+
+data:
+  APP_ENV: "development"
+  APP_PORT: "80"
+  LOG_LEVEL: "info"
+
+
+67. See the Configmaps 
+
+  kubectl get configmap <name> -n <namespace>
+
+  Example : kubectl get configmap app-map -n kube-lab
+
+69. Verify the actual values 
+
+ kubectl describe configmap <name> -n <namespace>
+
+ Example : kubectl describe configmap app-map -n kube-lab
+
+ Synatx : 
+
+ kubectl create config <name> -n <namespace> --from-literal=<key>=<value>
+
+for multiple values :
+
+ kubectl create configmap <configmap-name> -n <namespace> --from-literal=<key>=<value>  --from-literal=<key>=<value>
+
+ Example : kubectl create configmap app-config -n kube-lab --from-literal=APP_ENV=development --from-literal=APP_PORT=80 --from-literal=LOG_LEVEL=info
+
+configmaps method : 
+
+1. configMapKeyRef : 
+
+ configMapKeyRef is used to retrieve a specific key from a ConfigMap and expose its value as an environment variable inside a container.
+ 
+--> it is use ful when we want to access one specific key
+
+   env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: app-map
+              key: APP_ENV
+
+
+              
+2. envFrom : 
+
+envFrom loads all key-value pairs from a ConfigMap as environment variables inside the container.
+
+Synatax : 
+
+envFrom:
+  - configMapRef:
+      name: app-map
+
+3. Mount ConfigMap as files inside the container:
+
+a. volumes : which config map to use
+
+volumes:
+  - name: app-config-volume
+    configMap:
+      name: app-map
+
+b. volumeMounts: 
+
+volumeMounts:
+  - name: app-config-volume
+    mountPath: /etc/app-config
+
+
+Check the values : kubectl exec nginx -n kube-lab -- cat /etc/app-config/APP_ENV
+
+
+### Secret :
+
+A Kubernetes Secret is an object used to store sensitive information such as passwords, tokens, usernames, and TLS credentials. Pods can consume Secrets as environment variables or mounted files.
+
+For Exmple :
+
+Username
+Password
+API Token
+SSH key
+TLS certificate
+
+ --> Kubernetes Secret is designed to hold sensitive data, and Secret data is base64-encoded in the manifest/API representation; encryption at rest can be configured separately
+
+70. Create a Kubernetes Secret :
+
+Syntax : kubectl create secret generic <secret-name> -n <namespace> --from-literals=<key>=<value> --form-literals=<key>=<value>
+
+Example : kubectl create secret generic db-secret -n kube-lab --from-literal=DB_USERNAME=admin --from-literal=DB_PASSWORD=admin@123
+
+71. Verify 
+
+  Syntax : kubectl get secret <name> -n <namespace>
+  
+
+  Example : kubectl get secret db-secret -n kube-lab
+
+
+  --> Opaque is the default type for a generic Kubernetes Secret used to store arbitrary key-value data such as usernames, passwords, and tokens.
+
+
+72. inspect the secret 
+
+  kubectl describe secret <name> -n <namespace>
+
+  Example : kubectl describe secret db-secret -n kube-lab
+
+
+Manifest file structure :
+
+ apiVersion: v1
+ kind: Secret
+
+ metadata:
+   name: <secret-name>
+   namespace: <namespace>
+ 
+ type: Opaque
+
+ data:
+  <key>: <base64-value>
+
+
+  --> secretKeyRef : secretKeyRef is used to inject a specific key from a Kubernetes Secret into a container as an environment variable.
+
+
+   syntax : 
+
+   env:
+     -name: <environment-variable-name>
+     valueFrom:
+        secretkeyRef: 
+           name: <secret-name>
+           key: <secret-key>
+
+
+  Example : 
+
+   env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret-manifest
+              key: DB_USERNAME
+
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret-manifest
+              key: DB_PASSWORD
+
+  
+  inspect : kubectl exec secret-pod -n kube-lab -- env | grep DB_
+
+-- > envFrom : envFrom is used when you want to load all key-value pairs from a Secret into the container as environment variables.
+
+
+   Syntax : 
+
+   envFrom:
+  - secretRef:
+      name: <secret-name>
+
+
+  Example : 
+
+  envFrom:
+  - secretRef:
+      name: db-secret-manifest
+
+--> Volume : A Kubernetes Secret can be mounted as a volume, where each Secret key is exposed as a file inside the container.
+
+Syntax :
+   
+   volumeMounts:
+  - name: <volume-name>
+    mountPath: <path>
+
+volumes:
+  - name: <volume-name>
+    secret:
+      secretName: <secret-name>
+  
+Example :
+
+volumeMounts:
+  - name: secret-volume
+    mountPath: /etc/db-secret
+
+volumes:
+  - name: secret-volume
+    secret:
+      secretName: db-secret-manifest
+
+
+
+
+
+
+
+
+
+
+
+##LoadBalencer :
+---------------
+A LoadBalancer is a Kubernetes Service type used to expose an application outside the cluster through an external load balancer.
+
+MetalLB : MetalLB is a load-balancer implementation for bare-metal Kubernetes clusters that provides external IP addresses for LoadBalancer Services.
+
+Kubernetes
+   ↓
+No cloud provider
+   ↓
+LoadBalancer Service
+   ↓
+EXTERNAL-IP: <pending>
+
+MetalLB has two main parts
+
+1. Controller :
+
+The controller watches Kubernetes resources and handles allocation of IP addresses to LoadBalancer Services.
+
+2.Speaker :
+
+The speaker runs on cluster nodes and announces the assigned IP address to the network.
+
+
+             MetalLB
+          ┌───────────┐
+          │ Controller│
+          └─────┬─────┘
+                │
+                ↓
+        Assign external IP
+                │
+                ↓
+          LoadBalancer
+            Service
+                │
+                ↓
+          MetalLB Speaker
+                │
+                ↓
+             Network
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Command : crictl 
 this command is communicates with the containerr runtime 
 What we want to check: Whether the API server container is Running, Exited, or repeatedly restarting. A healthy result should show a running kube-apiserver container.
@@ -290,3 +875,31 @@ Example :
 
 
 
+
+
+
+
+
+kubectl apply -f - <<'EOF'
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: httpd-rs
+spec:
+  replicas: 13
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:
+      labels:
+        app: httpd
+    spec:
+      containers:
+      - name: httpd
+        image: httpd:2.4
+EOF
+
+
+
+A standalone Pod is not automatically recreated when deleted. Controllers such as Deployments, ReplicaSets, and StatefulSets maintain the desired number of Pods and recreate them when necessary.
